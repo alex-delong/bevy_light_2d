@@ -49,6 +49,8 @@ pub struct PointLight2d {
     pub falloff: f32,
     /// Whether the light should cast shadows.
     pub cast_shadows: bool,
+    /// z index of the point light source.
+    pub z_index: f32,
 }
 
 impl Default for PointLight2d {
@@ -60,6 +62,7 @@ impl Default for PointLight2d {
             radius: 0.5,
             falloff: 0.0,
             cast_shadows: false,
+            z_index: 0.,
         }
     }
 }
@@ -96,6 +99,8 @@ pub struct SpotLight2d {
     pub source_width: f32,
     /// Whether the light should cast shadows.
     pub cast_shadows: bool,
+    /// z index of the spot light source.
+    pub z_index: f32,
 }
 
 impl Default for SpotLight2d {
@@ -110,6 +115,7 @@ impl Default for SpotLight2d {
             outer_angle: -90.,
             source_width: 1.,
             cast_shadows: false,
+            z_index: 0.,
         }
     }
 }
