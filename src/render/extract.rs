@@ -16,6 +16,7 @@ pub struct ExtractedPointLight2d {
     pub intensity: f32,
     pub falloff: f32,
     pub cast_shadows: u32,
+    pub z_index: f32,
 }
 
 #[derive(Component, Default, Clone, ShaderType)]
@@ -30,6 +31,7 @@ pub struct ExtractedSpotLight2d {
     pub outer_angle: f32,
     pub source_width: f32,
     pub cast_shadows: u32,
+    pub z_index: f32,
 }
 
 pub fn extract_spot_lights(
@@ -64,6 +66,7 @@ pub fn extract_spot_lights(
                 outer_angle: outer_radians,
                 source_width: spot_light.source_width,
                 cast_shadows: if spot_light.cast_shadows { 1 } else { 0 },
+                z_index: spot_light.z_index
             });
     }
 }
@@ -72,6 +75,7 @@ pub fn extract_spot_lights(
 pub struct ExtractedLightOccluder2d {
     pub half_size: Vec2,
     pub center: Vec2,
+    pub z_index: f32
 }
 
 #[derive(Component, Default, Clone, ShaderType)]
@@ -103,6 +107,7 @@ pub fn extract_point_lights(
                 intensity: point_light.intensity,
                 falloff: point_light.falloff,
                 cast_shadows: if point_light.cast_shadows { 1 } else { 0 },
+                z_index: point_light.z_index,
             });
     }
 }
@@ -128,6 +133,7 @@ pub fn extract_light_occluders(
             LightOccluder2dShape::Rectangle { half_size } => ExtractedLightOccluder2d {
                 half_size,
                 center: global_transform.translation().xy(),
+                z_index: light_occluder.z_index
             },
         };
 
