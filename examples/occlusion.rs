@@ -38,6 +38,7 @@ fn setup(mut commands: Commands) {
             falloff: 10.0,
             cast_shadows: true,
             color: Color::Srgba(YELLOW),
+            z_index: -1.,
         },
         Transform::from_translation(Vec3::new(0.0, 200.0, 0.0)),
         YellowLight,
@@ -50,6 +51,7 @@ fn setup(mut commands: Commands) {
             falloff: 10.0,
             cast_shadows: true,
             color: Color::Srgba(BLUE),
+            z_index: -1.,
         },
         Transform::from_translation(Vec3::new(0.0, 200.0, 0.0)),
         BlueLight,
@@ -66,6 +68,7 @@ fn setup(mut commands: Commands) {
             source_width: 10.0,
             cast_shadows: true,
             color: Color::Srgba(RED),
+            z_index: 1.,
         },
         Transform::from_translation(Vec3::new(0.0, -200.0, 0.0)),
         RedLight,
@@ -82,6 +85,7 @@ fn setup(mut commands: Commands) {
             source_width: 10.0,
             cast_shadows: true,
             color: Color::Srgba(GREEN),
+            z_index: 1.,
         },
         Transform::from_translation(Vec3::new(0.0, -200.0, 0.0)),
         GreenLight,
@@ -92,6 +96,7 @@ fn setup(mut commands: Commands) {
             shape: LightOccluder2dShape::Rectangle {
                 half_size: Vec2::splat(25.0),
             },
+            z_index: 0.,
         },
         Transform::from_xyz(-400.0, 0., 0.0),
     ));
@@ -101,6 +106,7 @@ fn setup(mut commands: Commands) {
             shape: LightOccluder2dShape::Rectangle {
                 half_size: Vec2::splat(25.0),
             },
+            z_index: 0.,
         },
         Transform::from_xyz(-200.0, 0.0, 0.0),
     ));
@@ -110,6 +116,7 @@ fn setup(mut commands: Commands) {
             shape: LightOccluder2dShape::Rectangle {
                 half_size: Vec2::splat(25.0),
             },
+            z_index: 0.,
         },
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
@@ -119,6 +126,7 @@ fn setup(mut commands: Commands) {
             shape: LightOccluder2dShape::Rectangle {
                 half_size: Vec2::splat(25.0),
             },
+            z_index: 0.,
         },
         Transform::from_xyz(200.0, 0.0, 0.0),
     ));
@@ -128,6 +136,7 @@ fn setup(mut commands: Commands) {
             shape: LightOccluder2dShape::Rectangle {
                 half_size: Vec2::splat(25.0),
             },
+            z_index: 0.,
         },
         Transform::from_xyz(400.0, 0.0, 0.0),
     ));
