@@ -11,12 +11,23 @@ use bevy::{
 /// A light occluder that prevents light passing through it, casting shadows.
 ///
 /// This is commonly used as a component within [`LightOcluder2dBundle`].
-#[derive(Default, Component)]
+#[derive(Component)]
 #[require(SyncToRenderWorld, Transform, Visibility, VisibilityClass)]
 #[component(on_add = visibility::add_visibility_class::<LightOccluder2d>)]
 pub struct LightOccluder2d {
     /// The shape of the light occluder.
     pub shape: LightOccluder2dShape,
+    /// The z index of the light occluder.
+    pub z_index: f32
+}
+
+impl Default for LightOccluder2d {
+    fn default() -> Self {
+        Self {
+            shape: LightOccluder2dShape::default(),
+            z_index: 0.,
+        }
+    }
 }
 
 /// Shape data for a light occluder.
