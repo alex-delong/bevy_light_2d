@@ -31,7 +31,7 @@ impl EmptyBuffer {
         let size = if render_device.limits().max_storage_buffers_per_shader_stage == 0 {
             4096
         } else {
-            64
+            80
         };
         if self.buffer.is_none() {
             self.buffer = Some(render_device.create_buffer(&BufferDescriptor {
