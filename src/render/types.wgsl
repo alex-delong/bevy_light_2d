@@ -7,6 +7,7 @@ struct AmbientLight2d {
 struct LightOccluder2d {
     half_size: vec2<f32>,
     center: vec2<f32>,
+    z_index: f32
 }
 
 struct PointLight2d {
@@ -15,7 +16,8 @@ struct PointLight2d {
     color: vec4<f32>,
     intensity: f32,
     falloff: f32,
-    cast_shadows: u32
+    cast_shadows: u32,
+    z_index: f32,
 }
 
 struct SpotLight2d {
@@ -29,6 +31,7 @@ struct SpotLight2d {
     outer_angle: f32,
     source_width: f32,
     cast_shadows: u32,
+    z_index: f32,
 }
 
 struct PointLightMeta {
