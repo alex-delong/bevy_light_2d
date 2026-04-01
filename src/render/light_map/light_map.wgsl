@@ -55,10 +55,6 @@ var<uniform> spot_light_meta: SpotLightMeta;
 fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     let pos = ndc_to_world(frag_coord_to_ndc(in.position.xy));
 
-    if get_distance(pos) <= 0.0 {
-        return vec4(ambient_light.color.rgb, 1.0);
-    }
-
     var lighting_color = ambient_light.color.rgb;
     
     // Point lights
@@ -67,7 +63,7 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
         let dist = distance(light.center, pos);
 
         if dist < light.radius {
-            let raymarch = raymarch(pos, light.center);
+            let raymarch = raymarch(light.center, pos, light.z_index);
 
             if raymarch > 0.0 || light.cast_shadows == 0 {
                 lighting_color += light.color.rgb * attenuation(dist, light.radius, light.intensity, light.falloff);
@@ -83,7 +79,7 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
         if dist < light.radius {
             let mask = spot_mask(light, pos, effective_center);
             if mask > 0.0 {
-                let vis = raymarch(pos, effective_center);
+                let vis = raymarch(effective_center, pos, light.z_index);
                 if vis > 0.0 || light.cast_shadows == 0u {
                     lighting_color += light.color.rgb * attenuation(dist, light.radius, light.intensity, light.falloff) * mask;
                 }
@@ -109,10 +105,10 @@ fn attenuation(dist: f32, radius: f32, intensity: f32, falloff: f32) -> f32 {
     return intensity * square(1.0 - s2) / (1.0 + falloff * s2);
 }
 
-fn get_distance(pos: vec2<f32>) -> f32 {
+fn get_sdf_data(pos: vec2<f32>) -> vec2<f32> {
     let uv = ndc_to_uv(world_to_ndc(pos));
-    let dist = textureSampleLevel(sdf, sdf_sampler, uv, 0.0).r;
-    return dist;
+    let sample = textureSampleLevel(sdf, sdf_sampler, uv, 0.0).rg;
+    return sample;
 }
 
 fn distance_squared(a: vec2<f32>, b: vec2<f32>) -> f32 {
@@ -120,14 +116,15 @@ fn distance_squared(a: vec2<f32>, b: vec2<f32>) -> f32 {
     return dot(c, c);
 }
 
-fn raymarch(ray_origin: vec2<f32>, ray_target: vec2<f32>) -> f32 {
+fn raymarch(ray_origin: vec2<f32>, ray_target: vec2<f32>, light_z: f32) -> f32 {
     let ray_direction = normalize(ray_target - ray_origin);
     let stop_at = distance_squared(ray_origin, ray_target);
 
     var ray_progress: f32 = 0.0;
     var pos = vec2<f32>(0.0);
+    var inside_occluder = false;
 
-    for (var i = 0; i < 32; i++) {
+    for (var i = 0; i < 512; i++) {
         pos = ray_origin + ray_progress * ray_direction;
 
         if (ray_progress * ray_progress >= stop_at) {
@@ -135,13 +132,26 @@ fn raymarch(ray_origin: vec2<f32>, ray_target: vec2<f32>) -> f32 {
             return 1.0;
         }
 
-        let dist = get_distance(pos);
+        let sdf_data: vec2<f32> = get_sdf_data(pos);
+        let dist: f32 = sdf_data.x;
+        let occluder_z: f32 = sdf_data.y;
 
-        if dist <= 0.0 {
-            break;
+        if (dist <= 0.0) {
+            inside_occluder = true;
+            // light is behind occluder
+            if (light_z < occluder_z) {
+                break;
+            }
+            // march forward a small amount to break through the occluder
+            ray_progress += 1.;
+        } else {
+            // if we've gone through the occluder to the other side, cast a shadow behind it
+            if inside_occluder {
+                break;
+            } else {
+                ray_progress += dist;
+            }
         }
-
-        ray_progress += dist;
     }
 
     // ray found occluder
