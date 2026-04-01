@@ -7,8 +7,8 @@
 // WebGL2, which is limited to 4kb in BatchedUniformBuffer, so we need to
 // ensure our occluders can fit in 4kb.
 //
-// As each occluder is 16 bytes, we can fit 4096 / 16 = 256 occluders.
-const MAX_OCCLUDERS: u32 = 256u;
+// As each occluder is 32 bytes, we can fit 4096 / 32 = 128 occluders.
+const MAX_OCCLUDERS: u32 = 128u;
 
 @group(0) @binding(0)
 var<uniform> view: View;
@@ -43,13 +43,18 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
         return vec4(255.0, 0.0, 0.0, 1.0);
     }
 
-    var sdf = occluder_sd(pos, occluders[0]);
+    var min_sdf = occluder_sd(pos, occluders[0]);
+    var closest_occluder_z = occluders[0].z_index;
 
     for (var i = 1u; i < occluder_count; i++) {
-        sdf = min(sdf, occluder_sd(pos, occluders[i]));
+        let current_sdf = occluder_sd(pos, occluders[i]);
+        if current_sdf < min_sdf {
+            min_sdf = current_sdf;
+            closest_occluder_z = occluders[i].z_index;
+        }
     }
 
-    return vec4(sdf, 0.0, 0.0, 1.0);
+    return vec4(min_sdf, closest_occluder_z, 0.0, 1.0);
 }
 
 fn occluder_sd(p: vec2f, occluder: LightOccluder2d) -> f32 {
