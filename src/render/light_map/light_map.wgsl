@@ -124,7 +124,7 @@ fn raymarch(ray_origin: vec2<f32>, ray_target: vec2<f32>, light_z: f32) -> f32 {
     var pos = vec2<f32>(0.0);
     var inside_occluder = false;
 
-    for (var i = 0; i < 512; i++) {
+    for (var i = 0; i < 8000; i++) {
         pos = ray_origin + ray_progress * ray_direction;
 
         if (ray_progress * ray_progress >= stop_at) {
@@ -137,6 +137,10 @@ fn raymarch(ray_origin: vec2<f32>, ray_target: vec2<f32>, light_z: f32) -> f32 {
         let occluder_z: f32 = sdf_data.y;
 
         if (dist <= 0.0) {
+            // if the ray started inside an occluder, do not cast a shadow
+            if ray_progress == 0. {
+                return 1.;
+            }
             inside_occluder = true;
             // light is behind occluder
             if (light_z < occluder_z) {
